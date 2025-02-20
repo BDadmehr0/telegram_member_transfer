@@ -72,16 +72,28 @@ async def start_client(client, phone, index, data):
 
 
 # Analyze source group and suggest transfer count
+# Analyze source group and suggest transfer count
 async def analyze_group(client, source_group):
     source_entity = await client.get_entity(source_group)
     members = await client.get_participants(source_entity)
     total_members = len(members)
     rprint(f"[blue]The source group has {total_members} members.[/blue]")
+    
     suggested_transfer = min(total_members, 50 * len(load_data()["api_accounts"]))
+
     user_input = input(
-        f"How many members do you want to transfer? (Recommended: {suggested_transfer}): "
-    )
-    return min(int(user_input), total_members)
+        f"How many members do you want to transfer? (Recommended: {suggested_transfer} - Press Enter to accept): "
+    ).strip()
+
+    if not user_input:
+        return suggested_transfer
+    try:
+        transfer_count = int(user_input)
+        return min(transfer_count, total_members)
+    except ValueError:
+        rprint("[red]Invalid input! Using recommended value.[/red]")
+        return suggested_transfer
+
 
 
 # Manage Telegram accounts
